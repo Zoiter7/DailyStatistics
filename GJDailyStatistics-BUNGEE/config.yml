@@ -22,5 +22,6 @@ servers:
 ##
 dMessage-noStatFound: ":exclamation: No statistics were found for the indicated date!"
 dMessage-incorrectDataFormat: ":exclamation: Incorrect date format! (dd-MM-yyyy)"
+dMessage-noStatReady: ":exclamation: The statistics for today are not ready yet!"
 
 
