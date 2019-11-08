@@ -43,22 +43,33 @@ public class AppDiscord extends SimpleAddon {
     	
     	String[] arguments = command.getArguments();
 	        
-    	if(arguments.length > 0 && !arguments[0].isEmpty()) {
-    		DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-    		try {
-    			dateFormatter.setLenient(false);
-				dateFormatter.parse(arguments[0]);
-			} catch (ParseException e) {
-				this.executeMsg(null, DailyStatistics.getInstance().config.getConfig().getString("dMessage-incorrectDataFormat"));
-				return;
-			}
-        	String date = arguments[0].toString();
+    	if(arguments.length > 0) {
+    		if(!arguments[0].isEmpty() && arguments[0].contentEquals("actual")) {
+    			DailyStatistics.getInstance().prepareDiscordMessage(DailyStatistics.getInstance().getActualDate(), true, "actual");
 
-        	if(date != null) {
-        		DailyStatistics.getInstance().prepareDiscordMessage(date, true);
-        		
-        	}
-    	}	
+    		}else if (!arguments[0].isEmpty()){
+    			DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+    			try {
+    				dateFormatter.setLenient(false);
+    				dateFormatter.parse(arguments[0]);
+    			} catch (ParseException e) {
+    				this.executeMsg(null, DailyStatistics.getInstance().config.getConfig().getString("dMessage-incorrectDataFormat"));
+    				return;
+    			}
+    			String date = arguments[0].toString();
+
+    			if(date != null) {
+    				DailyStatistics.getInstance().prepareDiscordMessage(date, true, "stat");
+            		
+            	}
+    		}
+
+    	}else {
+    		executeMsg(null, ">>> **Commands:** \n" + 
+    				" -stat <date>\n" + 
+    				" -stat actual");
+    	}
+    	
     }
     
     

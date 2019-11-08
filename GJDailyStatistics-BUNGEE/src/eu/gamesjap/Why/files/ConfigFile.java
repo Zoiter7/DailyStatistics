@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import eu.gamesjap.Why.DailyStatistics;
+import javafx.scene.paint.Color;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -45,12 +46,19 @@ public class ConfigFile {
 	public void saveConfig() {
 		try {
 			ConfigurationProvider.getProvider(YamlConfiguration.class).save(configConf, configFile);
-
 		}catch(IOException e) {
 
 		}
 	}
 
+	public void reloadConfig() {
+		try {
+			configConf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+		} catch (IOException e) {
+			System.out.println(Color.RED + "An error has occurred when reloading the file!");
+		}
+	}
+	
 	public Configuration getConfig() {
 		return configConf;
 	}
