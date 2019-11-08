@@ -1,0 +1,26 @@
+##channel ID where the stats messages will be sent
+discord-channelID: ''
+##time in minutes for collecting info about online players
+time: 15
+##you can set your time zone for display the times
+##in your local hour instead of your hosting time zone if that's the case
+##you can check the correct timezones here: https://pastebin.com/BLZtR2FA
+time-zone: "Europe/Madrid"
+##if true the plugin will create a task for send
+##the stat message automatically at the setted time (below)
+enable-dTask: true
+##at what hour the discord message should be sent
+##tip: normally would be set between 23pm-00am because is the stat of the entire day
+task-hour: "23:55"
+##name of servers on your bungecoord network to be checked
+##!!! must be the same name like in your bungee config.yml
+servers:
+ - "lobby"
+ 
+##
+##  MESSAGES SECTION
+##
+dMessage-noStatFound: ":exclamation: No statistics were found for the indicated date!"
+dMessage-incorrectDataFormat: ":exclamation: Incorrect date format! (dd-MM-yyyy)"
+
+

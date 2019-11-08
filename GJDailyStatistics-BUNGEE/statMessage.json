@@ -1,0 +1,10 @@
+﻿{
+    "embed":{
+        "title":" :page_facing_up: **Estadísticas Diarias**",
+        "description":" \n\n:high_brightness: **%server_name%**\n- - - >  _Máximo online:_ **%online%** (%time%)\n\n.",
+        "color": 65280,
+        "footer":{
+            "text":"*GJDiscordBOT* made with love by *Why*"
+        }
+    }
+}
