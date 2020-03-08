@@ -179,7 +179,9 @@ public class DailyStatistics extends Plugin {
 	public void prepareDiscordTask(boolean reload) throws ParseException {
 		
 		if(reload) {
-			timer.cancel();
+			if(timer != null) {
+				timer.cancel();
+			}
 			task.cancel();
 		}
 		
