@@ -15,11 +15,11 @@ public class ReloadCMD extends Command {
 	@Override
 	public void execute(CommandSender sender, String[] args) {
 		if (args.length == 0) {
-			sender.sendMessage(ds.prefix + "§cUsage: /ds reload");
+			sender.sendMessage(ds.prefix + "Â§cUsage: /ds reload");
 			
 		}else if (args[0].equalsIgnoreCase("reload")) {
 			ds.reload();
-			sender.sendMessage(ds.prefix + "§aThe configuration has been reloaded!");		
+			sender.sendMessage(ds.prefix + "Â§aThe configuration has been reloaded!");		
 		}	
 	}
 }
