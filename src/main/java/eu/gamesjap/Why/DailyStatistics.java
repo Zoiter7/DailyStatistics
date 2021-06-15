@@ -50,7 +50,7 @@ public class DailyStatistics extends Plugin {
         File configFile = saveFile(getDataFolder(), "config.yml");
         File dataFile   = saveFile(getDataFolder(), "data.yml");
 
-        saveFile(getDataFolder(), "statMessage.json");
+        saveFile(new File(getDataFolder(), "messages"), "statMessage.json");
 
         this.dataManager   = new ConfigurationManager(dataFile, getLogger());
         this.configManager = new ConfigurationManager(configFile, getLogger());
@@ -223,7 +223,7 @@ public class DailyStatistics extends Plugin {
         }
 
         File folder = new File(getDataFolder(), "messages");
-        File file = new File(folder, "statMessage" + ".json");
+        File file = new File(folder, "statMessage.json");
 
         if (!file.exists()) {
             getLogger().info(prefix + "§cERROR: The message file (statMessage.json) was not found.");
@@ -327,8 +327,11 @@ public class DailyStatistics extends Plugin {
         taskCollectInfo(true);
     }
 
-    public static File saveFile(File dataFolder, String file) {
-        File outFile = new File(dataFolder, file);
+    public static File saveFile(File folder, String file) {
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File outFile = new File(folder, file);
         if (!outFile.exists()) {
             InputStream in = DailyStatistics.class.getResourceAsStream("/" + file);
             try {
