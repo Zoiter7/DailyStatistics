@@ -1,6 +1,9 @@
 package eu.gamesjap.Why;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -13,67 +16,78 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
-import eu.gamesjap.Why.commands.ReloadCMD;
-import eu.gamesjap.Why.discord.AppDiscord;
-import eu.gamesjap.Why.discord.Task;
-import eu.gamesjap.Why.files.ConfigFile;
-import eu.gamesjap.Why.files.DataFile;
-import eu.gamesjap.Why.files.MessageFile;
-import org.spicord.Spicord;
+import org.spicord.SpicordLoader;
 import org.spicord.embed.Embed;
 import org.spicord.embed.EmbedLoader;
+
+import eu.gamesjap.Why.commands.ReloadCMD;
+import eu.gamesjap.Why.discord.DailyStatisticsDiscord;
+import eu.gamesjap.Why.discord.Task;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 public class DailyStatistics extends Plugin {
 
-    public static DailyStatistics plugin;
     private static int year = 0;
     private static int month = 0;
     private static int day = 0;
-    public String prefix = "§aDailyStatistics §f» ";
-    private static DailyStatistics instance;
-    private DataFile data = new DataFile();
-    public ConfigFile config = new ConfigFile();
+
+    public final String prefix = "§aDailyStatistics §f» ";
+
+    private ConfigurationManager dataManager;
+    private ConfigurationManager configManager;
+
+    private DailyStatisticsDiscord addon;
+
     static ScheduledTask task;
     static Timer timer;
 
-    public DailyStatistics() {
-        instance = this;
-    }
-
-    public static DailyStatistics getInstance() {
-        return instance;
-    }
-
+    @Override
     public void onEnable() {
+        getDataFolder().mkdirs();
 
-        plugin = this;
-        getProxy().getConsole().sendMessage("§aLoading DailyStatistics...");
-        createDataFiles();
+        File configFile = saveFile(getDataFolder(), "config.yml");
+        File dataFile   = saveFile(getDataFolder(), "data.yml");
+
+        saveFile(getDataFolder(), "statMessage.json");
+
+        this.dataManager   = new ConfigurationManager(dataFile, getLogger());
+        this.configManager = new ConfigurationManager(configFile, getLogger());
+
+        getLogger().info("§aLoading DailyStatistics...");
+
         collectInfo();
 
-        if (Spicord.isLoaded()) {
-            Spicord.getInstance().getAddonManager().registerAddon(new AppDiscord());
-        } else {
-            getProxy().getConsole().sendMessage(prefix + "§cFailed to register Discord addon");
-        }
+        this.addon = new DailyStatisticsDiscord(this);
+
+        SpicordLoader.addStartupListener(spicord -> {
+            spicord.getAddonManager().registerAddon(addon);
+        });
 
         checkDTaskIsEnabled(false);
 
-        getProxy().getPluginManager().registerCommand(this, new ReloadCMD("ds"));
+        getProxy().getPluginManager().registerCommand(this, new ReloadCMD(this));
         getProxy().getScheduler().schedule(this, () -> taskCollectInfo(false), 15, TimeUnit.SECONDS);
 
     }
 
+    @Override
     public void onDisable() {
-        getProxy().getConsole().sendMessage("§cDisabling DailyStatistics...");
+        getLogger().info("§cDisabling DailyStatistics...");
+    }
+
+    public ConfigurationManager getDataManager() {
+        return dataManager;
+    }
+
+    public ConfigurationManager getConfigManager() {
+        return configManager;
     }
 
     public void checkDTaskIsEnabled(boolean reload) {
         try {
-            if (config.getConfig().getBoolean(("enable-dTask"))) {
+            if (configManager.getConfig().getBoolean(("enable-dTask"))) {
                 if (reload) {
                     prepareDiscordTask(true);
                 } else {
@@ -83,16 +97,9 @@ public class DailyStatistics extends Plugin {
                 task.cancel();
             }
         } catch (ParseException e) {
-            getProxy().getConsole().sendMessage(prefix + "§cFailed to create discord task!");
+            getLogger().info(prefix + "§cFailed to create discord task!");
             System.out.println(e.getMessage());
         }
-    }
-
-    public void createDataFiles() {
-        data.createFile();
-        config.createFile();
-        MessageFile msgFile = new MessageFile();
-        msgFile.createFile();
     }
 
     public void taskCollectInfo(boolean reload) {
@@ -101,22 +108,22 @@ public class DailyStatistics extends Plugin {
             task.cancel();
         }
 
-        task = getProxy().getScheduler().schedule(DailyStatistics.plugin, new Runnable() {
+        task = getProxy().getScheduler().schedule(this, new Runnable() {
             @Override
             public void run() {
                 collectInfo();
             }
-        }, 0, config.getConfig().getInt("time"), TimeUnit.MINUTES);
+        }, 0, configManager.getConfig().getInt("time"), TimeUnit.MINUTES);
     }
 
     public void collectInfo() {
 
-        List<String> serverList = config.getConfig().getStringList("servers");
+        List<String> serverList = configManager.getConfig().getStringList("servers");
         checkDate();
         String formatted = String.valueOf(day) + "-" + String.valueOf(month) + "-" + String.valueOf(year);
 
         int totalPlayersOnline = getProxy().getOnlineCount();
-        getProxy().getConsole().sendMessage(
+        getLogger().info(
                 prefix + "§aCollecting info about total online players right now §7(§c" + totalPlayersOnline + "§7)");
 
         for (int i = 0; i < serverList.size(); i++) {
@@ -127,20 +134,20 @@ public class DailyStatistics extends Plugin {
             int online = sv.getPlayers().size();
 
             if (online != 0) {
-                int actualSave = data.getData().getInt(formatted + "." + serverList.get(i) + ".maxOnline");
+                int actualSave = dataManager.getConfig().getInt(formatted + "." + serverList.get(i) + ".maxOnline");
 
                 if (online > actualSave) {
-                    data.getData().set(formatted + "." + serverList.get(i) + ".maxOnline", online);
-                    data.getData().set(formatted + "." + serverList.get(i) + ".maxTime", System.currentTimeMillis());
-                    data.saveData();
+                    dataManager.getConfig().set(formatted + "." + serverList.get(i) + ".maxOnline", online);
+                    dataManager.getConfig().set(formatted + "." + serverList.get(i) + ".maxTime", System.currentTimeMillis());
+                    dataManager.saveConfig();
                 }
             }
         }
 
-        if (totalPlayersOnline > data.getData().getInt(formatted + ".maxTotalOnline")) {
-            data.getData().set(formatted + ".maxTotalOnline", totalPlayersOnline);
-            data.getData().set(formatted + ".maxTotalOnlineTime", System.currentTimeMillis());
-            data.saveData();
+        if (totalPlayersOnline > dataManager.getConfig().getInt(formatted + ".maxTotalOnline")) {
+            dataManager.getConfig().set(formatted + ".maxTotalOnline", totalPlayersOnline);
+            dataManager.getConfig().set(formatted + ".maxTotalOnlineTime", System.currentTimeMillis());
+            dataManager.saveConfig();
         }
 
     }
@@ -150,7 +157,7 @@ public class DailyStatistics extends Plugin {
         Timestamp stamp = new Timestamp(time);
         Date date = new Date(stamp.getTime());
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneId.of(config.getConfig().getString("time-zone"))));
+        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneId.of(configManager.getConfig().getString("time-zone"))));
 
         return dateFormat.format(date);
     }
@@ -158,7 +165,7 @@ public class DailyStatistics extends Plugin {
     public void checkDate() {
 
         Date d = new Date();
-        LocalDate localDate = d.toInstant().atZone(ZoneId.of(config.getConfig().getString("time-zone"))).toLocalDate();
+        LocalDate localDate = d.toInstant().atZone(ZoneId.of(configManager.getConfig().getString("time-zone"))).toLocalDate();
         int rMonth = localDate.getMonthValue();
         int rDay = localDate.getDayOfMonth();
         int rYear = localDate.getYear();
@@ -187,41 +194,39 @@ public class DailyStatistics extends Plugin {
         }
 
         DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(config.getConfig().getString("time-zone")));
+        dateFormatter.setTimeZone(TimeZone.getTimeZone(configManager.getConfig().getString("time-zone")));
 
-        Date startDate = dateFormatter.parse(getActualDate() + " " + config.getConfig().getString("task-hour"));
+        Date startDate = dateFormatter.parse(getActualDate() + " " + configManager.getConfig().getString("task-hour"));
         if (System.currentTimeMillis() > dateFormatter.getCalendar().getTimeInMillis()) {
-            startDate = dateFormatter.parse(changeDate() + " " + config.getConfig().getString("task-hour"));
+            startDate = dateFormatter.parse(changeDate() + " " + configManager.getConfig().getString("task-hour"));
         }
 
-        getProxy().getConsole().sendMessage(prefix + "§aDiscord task will run at " + startDate);
+        getLogger().info(prefix + "§aDiscord task will run at " + startDate);
         timer = new Timer();
-        timer.schedule(new Task(), startDate);
+        timer.schedule(new Task(this), startDate);
 
     }
 
     public void prepareDiscordMessage(String date, boolean command, String cmdAction) {
 
-        AppDiscord bot = AppDiscord.getInstance();
-
         if (command) {
-            if (!data.getData().contains(date + ".maxTotalOnline")) {
+            if (!dataManager.getConfig().contains(date + ".maxTotalOnline")) {
                 String msg = "";
                 if (cmdAction.equals("stat")) {
-                    msg = config.getConfig().getString("dMessage-noStatFound");
+                    msg = configManager.getConfig().getString("dMessage-noStatFound");
                 } else if (cmdAction.equals("actual")) {
-                    msg = config.getConfig().getString("dMessage-noStatReady");
+                    msg = configManager.getConfig().getString("dMessage-noStatReady");
                 }
-                bot.executeMsg(null, msg);
+                addon.executeMsg(null, msg);
                 return;
             }
         }
 
-        File folder = new File(plugin.getDataFolder() + File.separator + "messages");
+        File folder = new File(getDataFolder(), "messages");
         File file = new File(folder, "statMessage" + ".json");
 
         if (!file.exists()) {
-            getProxy().getConsole().sendMessage(prefix + "§cERROR: The message file (statMessage.json) was not found.");
+            getLogger().info(prefix + "§cERROR: The message file (statMessage.json) was not found.");
             return;
         }
 
@@ -230,7 +235,7 @@ public class DailyStatistics extends Plugin {
 
         Embed firstLoad = loader.getEmbedByName("statMessage");
 
-        List<String> serverList = config.getConfig().getStringList("servers");
+        List<String> serverList = configManager.getConfig().getStringList("servers");
 
         String[] serverNames = new String[serverList.size()];
         Integer[] online = new Integer[serverList.size()];
@@ -238,8 +243,8 @@ public class DailyStatistics extends Plugin {
 
         for (int i = 0; i < serverList.size(); i++) {
             serverNames[i] = serverList.get(i);
-            time[i] = getTime(data.getData().getLong(date + "." + serverList.get(i) + ".maxTime"));
-            online[i] = data.getData().getInt(date + "." + serverList.get(i) + ".maxOnline");
+            time[i] = getTime(dataManager.getConfig().getLong(date + "." + serverList.get(i) + ".maxTime"));
+            online[i] = dataManager.getConfig().getInt(date + "." + serverList.get(i) + ".maxOnline");
         }
 
         String replace = firstLoad.toString();
@@ -264,13 +269,13 @@ public class DailyStatistics extends Plugin {
 
         if (replace.contains("%server_global_online%")) {
             replace = replaced.replace("%server_global_online%",
-                    String.valueOf(data.getData().getInt(date + ".maxTotalOnline")));
+                    String.valueOf(dataManager.getConfig().getInt(date + ".maxTotalOnline")));
             replaced = replace;
         }
 
         if (replace.contains("%server_global_time%")) {
             replace = replaced.replace("%server_global_time%",
-                    getTime(data.getData().getLong(date + ".maxTotalOnlineTime")));
+                    getTime(dataManager.getConfig().getLong(date + ".maxTotalOnlineTime")));
             replaced = replace;
         }
 
@@ -280,7 +285,7 @@ public class DailyStatistics extends Plugin {
         }
 
         Embed edited = Embed.fromJson(replace);
-        bot.executeMsg(edited, null);
+        addon.executeMsg(edited, null);
 
     }
 
@@ -293,7 +298,7 @@ public class DailyStatistics extends Plugin {
 
         Date d = new Date();
         DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(config.getConfig().getString("time-zone")));
+        dateFormatter.setTimeZone(TimeZone.getTimeZone(configManager.getConfig().getString("time-zone")));
         dateFormatter.setLenient(false);
 
         try {
@@ -316,10 +321,26 @@ public class DailyStatistics extends Plugin {
     }
 
     public void reload() {
-        config.reloadConfig();
+        configManager.reloadConfig();
 
         checkDTaskIsEnabled(true);
         taskCollectInfo(true);
     }
 
+    public static File saveFile(File dataFolder, String file) {
+        File outFile = new File(dataFolder, file);
+        if (!outFile.exists()) {
+            InputStream in = DailyStatistics.class.getResourceAsStream("/" + file);
+            try {
+                if (in == null) {
+                    outFile.createNewFile();
+                } else {
+                    Files.copy(in, outFile.toPath());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return outFile;
+    }
 }
