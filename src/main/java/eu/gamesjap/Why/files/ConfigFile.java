@@ -30,7 +30,7 @@ public class ConfigFile {
             	InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml");
                 Files.copy(in, configFile.toPath());
 			}catch(IOException e) {
-				DailyStatistics.plugin.getProxy().getConsole().sendMessage("§CAn error has occurred when creating file...");
+				DailyStatistics.plugin.getProxy().getConsole().sendMessage("Â§CAn error has occurred when creating file...");
 			}
 		}  
 

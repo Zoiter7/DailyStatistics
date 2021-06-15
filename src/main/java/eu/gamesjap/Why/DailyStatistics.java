@@ -32,7 +32,7 @@ public class DailyStatistics extends Plugin {
 	private static int year = 0;
 	private static int month = 0;
 	private static int day = 0;
-	public String prefix = "§aDailyStatistics §f» ";
+	public String prefix = "Â§aDailyStatistics Â§fÂ» ";
 	private static DailyStatistics instance;
 	private DataFile data = new DataFile();
 	public ConfigFile config = new ConfigFile();
@@ -49,14 +49,14 @@ public class DailyStatistics extends Plugin {
 	public void onEnable(){
 		
 		plugin = this;
-		getProxy().getConsole().sendMessage("§aLoading DailyStatistics...");
+		getProxy().getConsole().sendMessage("Â§aLoading DailyStatistics...");
 		createDataFiles();
 		collectInfo();
 
 		if (Spicord.isLoaded()) { 
 			Spicord.getInstance().getAddonManager().registerAddon(new AppDiscord());
 		}else {
-			getProxy().getConsole().sendMessage(prefix + "§cFailed to register Discord addon");
+			getProxy().getConsole().sendMessage(prefix + "Â§cFailed to register Discord addon");
 		}
 		
 		checkDTaskIsEnabled(false);
@@ -67,7 +67,7 @@ public class DailyStatistics extends Plugin {
 	}
 
 	public void onDisable() {
-		getProxy().getConsole().sendMessage("§cDisabling DailyStatistics...");
+		getProxy().getConsole().sendMessage("Â§cDisabling DailyStatistics...");
 	}
 	
 	public void checkDTaskIsEnabled(boolean reload) {
@@ -82,7 +82,7 @@ public class DailyStatistics extends Plugin {
 				task.cancel();
 			}
 		} catch (ParseException e) {
-			getProxy().getConsole().sendMessage(prefix + "§cFailed to create discord task!");
+			getProxy().getConsole().sendMessage(prefix + "Â§cFailed to create discord task!");
 			System.out.println(e.getMessage());
 		}
 	}
@@ -115,7 +115,7 @@ public class DailyStatistics extends Plugin {
 		String formatted = String.valueOf(day) + "-" + String.valueOf(month) + "-" + String.valueOf(year);
 
 		int totalPlayersOnline = getProxy().getOnlineCount();
-		getProxy().getConsole().sendMessage(prefix + "§aCollecting info about total online players right now §7(§c" + totalPlayersOnline + "§7)");
+		getProxy().getConsole().sendMessage(prefix + "Â§aCollecting info about total online players right now Â§7(Â§c" + totalPlayersOnline + "Â§7)");
 		
 		
 		for (int i = 0; i < serverList.size(); i++) {
@@ -193,7 +193,7 @@ public class DailyStatistics extends Plugin {
 	    	startDate = dateFormatter.parse(changeDate() + " " + config.getConfig().getString("task-hour")); 	
 	    }
 	    
-	    getProxy().getConsole().sendMessage(prefix + "§aDiscord task will run at " + startDate);
+	    getProxy().getConsole().sendMessage(prefix + "Â§aDiscord task will run at " + startDate);
 	    timer = new Timer();
 	    timer.schedule(new Task(), startDate);
 
@@ -220,7 +220,7 @@ public class DailyStatistics extends Plugin {
 		File file = new File(folder, "statMessage" + ".json");
 
 		if(!file.exists()) {
-			getProxy().getConsole().sendMessage(prefix + "§cERROR: The message file (statMessage.json) was not found.");
+			getProxy().getConsole().sendMessage(prefix + "Â§cERROR: The message file (statMessage.json) was not found.");
 			return;
 		}
 

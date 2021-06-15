@@ -26,7 +26,7 @@ public class MessageFile {
             	InputStream in = getClass().getClassLoader().getResourceAsStream("statMessage.json");
                 Files.copy(in, messageFile.toPath());
 			}catch(IOException e) {
-				DailyStatistics.plugin.getProxy().getConsole().sendMessage("§cAn error has occurred when creating file...");
+				DailyStatistics.plugin.getProxy().getConsole().sendMessage("Â§cAn error has occurred when creating file...");
 			}
 		}  
 

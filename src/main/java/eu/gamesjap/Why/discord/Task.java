@@ -10,7 +10,7 @@ public class Task extends TimerTask {
 
     public void run(){	
     	ds.prepareDiscordMessage(ds.getActualDate(), false, null);
-    	ds.getProxy().getConsole().sendMessage(ds.prefix + "§aDay finished! (maybe?) Running discord task... (Sending message to your discord server)");
+    	ds.getProxy().getConsole().sendMessage(ds.prefix + "Â§aDay finished! (maybe?) Running discord task... (Sending message to your discord server)");
 		
     }
 }

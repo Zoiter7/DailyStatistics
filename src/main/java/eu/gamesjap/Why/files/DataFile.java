@@ -26,7 +26,7 @@ public class DataFile {
 			try {
 				dataFile.createNewFile();
 			}catch(IOException e) {
-				DailyStatistics.plugin.getProxy().getConsole().sendMessage("§CAn error has occurred when creating file...");
+				DailyStatistics.plugin.getProxy().getConsole().sendMessage("Â§CAn error has occurred when creating file...");
 
 			}
 		}  
