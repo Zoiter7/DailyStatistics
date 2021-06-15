@@ -4,32 +4,26 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import eu.gamesjap.Why.DailyStatistics;
 import org.spicord.api.addon.SimpleAddon;
 import org.spicord.bot.DiscordBot;
 import org.spicord.bot.command.DiscordBotCommand;
 import org.spicord.embed.Embed;
-import org.spicord.embed.EmbedSender;
+
+import eu.gamesjap.Why.DailyStatistics;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-public class AppDiscord extends SimpleAddon {
+public class DailyStatisticsDiscord extends SimpleAddon {
 
-    private static AppDiscord instance;
     private DiscordBot bot;
+    private DailyStatistics ds;
 
-    public static AppDiscord getInstance() {
-        return instance;
-    }
-
-    public AppDiscord() {
+    public DailyStatisticsDiscord(DailyStatistics ds) {
         super("DailyStatistics", "daily_statistics", "Zoiter7");
-
-        instance = this;
+        this.ds = ds;
     }
 
     @Override
     public void onLoad(DiscordBot bot) {
-
         this.bot = bot;
 
         bot.onCommand("stat", this::statsCmd);
@@ -41,7 +35,7 @@ public class AppDiscord extends SimpleAddon {
 
         if (arguments.length > 0) {
             if (!arguments[0].isEmpty() && arguments[0].contentEquals("actual")) {
-                DailyStatistics.getInstance().prepareDiscordMessage(DailyStatistics.getInstance().getActualDate(), true,
+                ds.prepareDiscordMessage(ds.getActualDate(), true,
                         "actual");
 
             } else if (!arguments[0].isEmpty()) {
@@ -51,13 +45,13 @@ public class AppDiscord extends SimpleAddon {
                     dateFormatter.parse(arguments[0]);
                 } catch (ParseException e) {
                     this.executeMsg(null,
-                            DailyStatistics.getInstance().config.getConfig().getString("dMessage-incorrectDataFormat"));
+                            ds.getConfigManager().getConfig().getString("dMessage-incorrectDataFormat"));
                     return;
                 }
                 String date = arguments[0].toString();
 
                 if (date != null) {
-                    DailyStatistics.getInstance().prepareDiscordMessage(date, true, "stat");
+                    ds.prepareDiscordMessage(date, true, "stat");
 
                 }
             }
@@ -71,12 +65,12 @@ public class AppDiscord extends SimpleAddon {
     public void executeMsg(Embed msg, String normalMsg) {
 
         TextChannel channel = bot.getJda()
-                .getTextChannelById(DailyStatistics.getInstance().config.getConfig().getString("discord-channelID"));
+                .getTextChannelById(ds.getConfigManager().getConfig().getString("discord-channelID"));
 
         if (normalMsg != null) {
             channel.sendMessage(normalMsg).queue();
         } else {
-            EmbedSender.prepare(channel, msg).queue();
+            msg.sendToChannel(channel);
         }
     }
 
