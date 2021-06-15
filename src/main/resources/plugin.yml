@@ -1,0 +1,5 @@
+main: eu.gamesjap.Why.DailyStatistics
+name: DailyStatistics
+version: 1.1
+author: Zoiter7
+depends: [Spicord]
