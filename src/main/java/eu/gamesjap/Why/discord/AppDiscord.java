@@ -14,74 +14,70 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AppDiscord extends SimpleAddon {
 
-	private static AppDiscord instance;
-	private DiscordBot bot;
-	
+    private static AppDiscord instance;
+    private DiscordBot bot;
+
     public static AppDiscord getInstance() {
         return instance;
     }
-    
+
     public AppDiscord() {
-        super(
-            "DailyStatistics",
-            "daily_statistics",
-            "Zoiter7"
-        );
-        
+        super("DailyStatistics", "daily_statistics", "Zoiter7");
+
         instance = this;
     }
 
     @Override
     public void onLoad(DiscordBot bot) {
-   	
-    	this.bot = bot;  
-    	
-    	bot.onCommand("stat", this::statsCmd);
+
+        this.bot = bot;
+
+        bot.onCommand("stat", this::statsCmd);
     }
-    
+
     private void statsCmd(DiscordBotCommand command) {
-    	
-    	String[] arguments = command.getArguments();
-	        
-    	if(arguments.length > 0) {
-    		if(!arguments[0].isEmpty() && arguments[0].contentEquals("actual")) {
-    			DailyStatistics.getInstance().prepareDiscordMessage(DailyStatistics.getInstance().getActualDate(), true, "actual");
 
-    		}else if (!arguments[0].isEmpty()){
-    			DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-    			try {
-    				dateFormatter.setLenient(false);
-    				dateFormatter.parse(arguments[0]);
-    			} catch (ParseException e) {
-    				this.executeMsg(null, DailyStatistics.getInstance().config.getConfig().getString("dMessage-incorrectDataFormat"));
-    				return;
-    			}
-    			String date = arguments[0].toString();
+        String[] arguments = command.getArguments();
 
-    			if(date != null) {
-    				DailyStatistics.getInstance().prepareDiscordMessage(date, true, "stat");
-            		
-            	}
-    		}
+        if (arguments.length > 0) {
+            if (!arguments[0].isEmpty() && arguments[0].contentEquals("actual")) {
+                DailyStatistics.getInstance().prepareDiscordMessage(DailyStatistics.getInstance().getActualDate(), true,
+                        "actual");
 
-    	}else {
-    		executeMsg(null, ">>> **Commands:** \n" + 
-    				" -stat <date>\n" + 
-    				" -stat actual");
-    	}
-    	
+            } else if (!arguments[0].isEmpty()) {
+                DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+                try {
+                    dateFormatter.setLenient(false);
+                    dateFormatter.parse(arguments[0]);
+                } catch (ParseException e) {
+                    this.executeMsg(null,
+                            DailyStatistics.getInstance().config.getConfig().getString("dMessage-incorrectDataFormat"));
+                    return;
+                }
+                String date = arguments[0].toString();
+
+                if (date != null) {
+                    DailyStatistics.getInstance().prepareDiscordMessage(date, true, "stat");
+
+                }
+            }
+
+        } else {
+            executeMsg(null, ">>> **Commands:** \n" + " -stat <date>\n" + " -stat actual");
+        }
+
     }
-    
-    
+
     public void executeMsg(Embed msg, String normalMsg) {
-    	
-		TextChannel channel = bot.getJda().getTextChannelById(DailyStatistics.getInstance().config.getConfig().getString("discord-channelID"));
-		
-		if(normalMsg != null) {
-			channel.sendMessage(normalMsg).queue();
-		}else {
-			EmbedSender.prepare(channel, msg).queue();
-		}
+
+        TextChannel channel = bot.getJda()
+                .getTextChannelById(DailyStatistics.getInstance().config.getConfig().getString("discord-channelID"));
+
+        if (normalMsg != null) {
+            channel.sendMessage(normalMsg).queue();
+        } else {
+            EmbedSender.prepare(channel, msg).queue();
+        }
     }
 
 }

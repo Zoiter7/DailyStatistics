@@ -6,20 +6,20 @@ import net.md_5.bungee.api.plugin.Command;
 
 public class ReloadCMD extends Command {
 
-	private final DailyStatistics ds = DailyStatistics.getInstance();
-	
-	public ReloadCMD(String name) {
-		super(name);
-	}
+    private final DailyStatistics ds = DailyStatistics.getInstance();
 
-	@Override
-	public void execute(CommandSender sender, String[] args) {
-		if (args.length == 0) {
-			sender.sendMessage(ds.prefix + "§cUsage: /ds reload");
-			
-		}else if (args[0].equalsIgnoreCase("reload")) {
-			ds.reload();
-			sender.sendMessage(ds.prefix + "§aThe configuration has been reloaded!");		
-		}	
-	}
+    public ReloadCMD(String name) {
+        super(name);
+    }
+
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage(ds.prefix + "§cUsage: /ds reload");
+
+        } else if (args[0].equalsIgnoreCase("reload")) {
+            ds.reload();
+            sender.sendMessage(ds.prefix + "§aThe configuration has been reloaded!");
+        }
+    }
 }

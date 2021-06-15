@@ -13,54 +13,54 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 public class ConfigFile {
 
-	private Configuration configConf;
-	private static File configFile;
+    private Configuration configConf;
+    private static File configFile;
 
-	public void createFile() {
+    public void createFile() {
 
-		File folder = DailyStatistics.plugin.getDataFolder();
-		if(!folder.exists()) {
-			folder.mkdir();
-		}
+        File folder = DailyStatistics.plugin.getDataFolder();
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
 
-		configFile = new File(folder + File.separator +  "config" + ".yml");
+        configFile = new File(folder + File.separator + "config" + ".yml");
 
-		if(!configFile.exists()) {
+        if (!configFile.exists()) {
             try {
-            	InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml");
+                InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml");
                 Files.copy(in, configFile.toPath());
-			}catch(IOException e) {
-				DailyStatistics.plugin.getProxy().getConsole().sendMessage("§CAn error has occurred when creating file...");
-			}
-		}  
+            } catch (IOException e) {
+                DailyStatistics.plugin.getProxy().getConsole()
+                        .sendMessage("§CAn error has occurred when creating file...");
+            }
+        }
 
-		try {
-			configConf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        try {
+            configConf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+    }
 
-	}
+    public void saveConfig() {
+        try {
+            ConfigurationProvider.getProvider(YamlConfiguration.class).save(configConf, configFile);
+        } catch (IOException e) {
 
-	public void saveConfig() {
-		try {
-			ConfigurationProvider.getProvider(YamlConfiguration.class).save(configConf, configFile);
-		}catch(IOException e) {
+        }
+    }
 
-		}
-	}
+    public void reloadConfig() {
+        try {
+            configConf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        } catch (IOException e) {
+            System.out.println(Color.RED + "An error has occurred when reloading the file!");
+        }
+    }
 
-	public void reloadConfig() {
-		try {
-			configConf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-		} catch (IOException e) {
-			System.out.println(Color.RED + "An error has occurred when reloading the file!");
-		}
-	}
-	
-	public Configuration getConfig() {
-		return configConf;
-	}
+    public Configuration getConfig() {
+        return configConf;
+    }
 
 }
