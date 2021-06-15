@@ -5,12 +5,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import eu.gamesjap.Why.DailyStatistics;
-import eu.mcdb.spicord.api.addon.SimpleAddon;
-import eu.mcdb.spicord.bot.DiscordBot;
-import eu.mcdb.spicord.bot.command.DiscordBotCommand;
-import eu.mcdb.spicord.embed.Embed;
-import eu.mcdb.spicord.embed.EmbedSender;
-import net.dv8tion.jda.core.entities.TextChannel;
+import org.spicord.api.addon.SimpleAddon;
+import org.spicord.bot.DiscordBot;
+import org.spicord.bot.command.DiscordBotCommand;
+import org.spicord.embed.Embed;
+import org.spicord.embed.EmbedSender;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AppDiscord extends SimpleAddon {
 
