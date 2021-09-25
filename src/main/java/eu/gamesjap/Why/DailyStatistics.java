@@ -205,6 +205,7 @@ public class DailyStatistics extends Plugin {
         timer = new Timer();
         timer.schedule(new Task(this), startDate);
 
+
     }
 
     public void prepareDiscordMessage(String date, boolean command, String cmdAction) {
