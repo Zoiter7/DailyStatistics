@@ -5,6 +5,9 @@ import java.util.concurrent.TimeUnit;
 
 import eu.gamesjap.Why.DailyStatistics;
 
+/**
+ * @deprecated
+ */
 public class Task extends TimerTask {
 
     private final DailyStatistics ds;

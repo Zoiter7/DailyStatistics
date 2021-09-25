@@ -22,7 +22,7 @@ import org.spicord.embed.EmbedLoader;
 
 import eu.gamesjap.Why.commands.ReloadCMD;
 import eu.gamesjap.Why.discord.DailyStatisticsDiscord;
-import eu.gamesjap.Why.discord.Task;
+// import eu.gamesjap.Why.discord.Task;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
@@ -42,6 +42,8 @@ public class DailyStatistics extends Plugin {
 
     static ScheduledTask task;
     static Timer timer;
+
+    private static ScheduledTask dailystatstask;
 
     @Override
     public void onEnable() {
@@ -191,6 +193,7 @@ public class DailyStatistics extends Plugin {
                 timer.cancel();
             }
             task.cancel();
+            dailystatstask.cancel();
         }
 
         DateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -202,10 +205,12 @@ public class DailyStatistics extends Plugin {
         }
 
         getLogger().info(prefix + "§aDiscord task will run at " + startDate);
-        timer = new Timer();
-        timer.schedule(new Task(this), startDate);
-
-
+        // timer = new Timer();
+        // timer.schedule(new Task(this), startDate);
+        Date now = java.util.Calendar.getInstance().getTime();
+        long startseconds = (startDate.getTime() - now.getTime())/1000;
+        ScheduledTask T = getProxy().getScheduler().schedule(this, () -> prepareDiscordMessage(getActualDate(), false, null), startseconds, 24*60*60L, TimeUnit.SECONDS);
+        dailystatstask = T;
     }
 
     public void prepareDiscordMessage(String date, boolean command, String cmdAction) {
