@@ -208,8 +208,8 @@ public class DailyStatistics extends Plugin {
         // timer = new Timer();
         // timer.schedule(new Task(this), startDate);
         Date now = java.util.Calendar.getInstance().getTime();
-        long startseconds = (startDate.getTime() - now.getTime())/1000;
-        ScheduledTask T = getProxy().getScheduler().schedule(this, () -> prepareDiscordMessage(getActualDate(), false, null), startseconds, 24*60*60L, TimeUnit.SECONDS);
+        long startmiliseconds = (startDate.getTime() - now.getTime());
+        ScheduledTask T = getProxy().getScheduler().schedule(this, () -> prepareDiscordMessage(getActualDate(), false, null), startmiliseconds, 24*60*60L*1000L, TimeUnit.MILLISECONDS);
         dailystatstask = T;
     }
 
