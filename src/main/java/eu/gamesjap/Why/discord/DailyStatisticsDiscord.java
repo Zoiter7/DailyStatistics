@@ -35,7 +35,7 @@ public class DailyStatisticsDiscord extends SimpleAddon {
 
         if (arguments.length > 0) {
             if (!arguments[0].isEmpty() && arguments[0].contentEquals("actual")) {
-                ds.prepareDiscordMessage(ds.getActualDate(), true,
+                ds.getManager().prepareDiscordMessage(null, true,
                         "actual");
 
             } else if (!arguments[0].isEmpty()) {
@@ -48,10 +48,10 @@ public class DailyStatisticsDiscord extends SimpleAddon {
                             ds.getConfigManager().getConfig().getString("dMessage-incorrectDataFormat"));
                     return;
                 }
-                String date = arguments[0].toString();
+                String date = arguments[0];
 
                 if (date != null) {
-                    ds.prepareDiscordMessage(date, true, "stat");
+                    ds.getManager().prepareDiscordMessage(date, true, "stat");
 
                 }
             }

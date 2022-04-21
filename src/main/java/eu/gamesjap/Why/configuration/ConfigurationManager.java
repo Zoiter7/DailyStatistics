@@ -1,4 +1,4 @@
-package eu.gamesjap.Why;
+package eu.gamesjap.Why.configuration;
 
 import java.io.File;
 import java.io.IOException;
